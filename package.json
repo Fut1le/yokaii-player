@@ -1,0 +1,26 @@
+{
+  "name": "yokaii-player",
+  "version": "1.0.0",
+  "description": "Открытый HTML5-плеер для аниме-сайтов: HLS и MP4, улучшение картинки 720+ на WebGL, жесты, пульт Smart TV. Vanilla JS, без зависимостей.",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./style.css": "./src/yokaii-player.css"
+  },
+  "files": ["src", "LICENSE", "README.md", "README.en.md"],
+  "sideEffects": ["*.css"],
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "anime", "anime-player", "video-player", "html5-video", "hls", "hls-player", "m3u8",
+    "player", "webgl", "anime4k", "smart-tv", "tizen", "webos", "vanilla-js", "es-modules"
+  ],
+  "homepage": "https://USERNAME.github.io/yokaii-player/",
+  "repository": { "type": "git", "url": "git+https://github.com/USERNAME/yokaii-player.git" },
+  "bugs": { "url": "https://github.com/USERNAME/yokaii-player/issues" },
+  "author": "Vladimir (https://yokaii.web.app)",
+  "license": "MIT"
+}

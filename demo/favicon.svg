@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Yokaii">
+  <defs>
+    <path id="yk-eye" d="M -10.5 0 C -6 -6.6 3.5 -6.8 10.5 -1.2 C 3.5 5.2 -6 5.6 -10.5 0 Z"/>
+    <path id="yk-slit" d="M -1.1 -4.6 C 0.25 -2.2 0.25 2.2 -1.1 4.6 C -2.45 2.2 -2.45 -2.2 -1.1 -4.6 Z"/>
+    <radialGradient id="yk-haze" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#F2452C" stop-opacity=".22"/>
+      <stop offset="55%" stop-color="#F2452C" stop-opacity=".05"/>
+      <stop offset="100%" stop-color="#F2452C" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="yk-glow" x="-70%" y="-200%" width="240%" height="500%">
+      <feGaussianBlur stdDeviation="2.4"/>
+    </filter>
+    <clipPath id="yk-plate"><rect width="64" height="64" rx="15.5"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#yk-plate)">
+    <rect width="64" height="64" fill="#0A0812"/>
+    <rect width="64" height="64" fill="url(#yk-haze)"/>
+
+    <g transform="translate(32 32.5) scale(1.06)">
+      <g fill="#F2452C" opacity=".5" filter="url(#yk-glow)">
+        <use href="#yk-eye" transform="translate(-11.5 0) scale(-1 1) rotate(-16)"/>
+        <use href="#yk-eye" transform="translate(11.5 0) rotate(-16)"/>
+      </g>
+
+      <g transform="translate(-11.5 0) scale(-1 1) rotate(-16)">
+        <use href="#yk-eye" fill="#F2452C"/>
+        <use href="#yk-slit" fill="#0A0812"/>
+        <circle cx="1.9" cy="-2.5" r=".95" fill="#7FE8D8"/>
+      </g>
+      <g transform="translate(11.5 0) rotate(-16)">
+        <use href="#yk-eye" fill="#F2452C"/>
+        <use href="#yk-slit" fill="#0A0812"/>
+        <circle cx="1.9" cy="-2.5" r=".95" fill="#7FE8D8"/>
+      </g>
+    </g>
+  </g>
+
+  <rect x=".5" y=".5" width="63" height="63" rx="15" fill="none" stroke="#fff" stroke-opacity=".07"/>
+</svg>

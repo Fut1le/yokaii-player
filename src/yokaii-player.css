@@ -1,0 +1,514 @@
+/* ============================================================
+   YOKAII PLAYER — стили
+   «Тушь и лисий огонь»: чернильная ночь, киноварь тории,
+   бирюза кицунэби.
+
+   Всё лежит внутри .yplayer и ничего не трогает на странице.
+   Перекрасить плеер под свой сайт — переопределить переменные:
+
+     .yplayer { --yp-accent: #7C5CFF; --yp-accent-glow: rgba(124,92,255,.5); }
+   ============================================================ */
+
+.yplayer {
+  /* --- цвета --- */
+  --yp-accent: #F2452C;              /* киноварь: кнопка, прогресс */
+  --yp-accent-2: #FF8A5C;            /* второй конец градиента дорожки */
+  --yp-accent-glow: rgba(242, 69, 44, .5);
+  --yp-accent-soft: rgba(242, 69, 44, .12);
+  --yp-fox: #7FE8D8;                 /* бирюза: выбранный пункт меню */
+  --yp-fox-soft: rgba(127, 232, 216, .14);
+  --yp-text: #F2EFFA;
+  --yp-muted: #9A93B4;
+  --yp-muted-dim: #6C6688;
+  --yp-line: rgba(255, 255, 255, .07);
+  --yp-line-strong: rgba(255, 255, 255, .15);
+  --yp-surface: rgba(16, 13, 26, .96);
+
+  /* --- шрифты: берутся со страницы, если своих нет --- */
+  --yp-font: inherit;
+  --yp-font-display: var(--yp-font);
+  --yp-font-mono: ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, monospace;
+
+  /* --- геометрия и движение --- */
+  --yp-radius: 20px;
+  --yp-radius-menu: 16px;
+  --yp-pad: clamp(12px, 2vw, 22px);
+  --yp-ease: cubic-bezier(.2, .8, .2, 1);
+  --yp-ease-out: cubic-bezier(.16, 1, .3, 1);
+  --yp-dur: .24s;
+
+  /* --- сцена ---
+     Коробка с жёстким 16:9. border-box обязателен: с content-box
+     высота считалась без отступов, и плеер вылезал на соседей.
+     contain: paint — содержимое физически не может выйти за край. */
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 190px;                 /* страховка для старого WebKit */
+  overflow: hidden;
+  isolation: isolate;
+  contain: paint;
+  border-radius: var(--yp-radius);
+  background: #000;
+  color: var(--yp-text);
+  font-family: var(--yp-font);
+  font-size: 15px;
+  line-height: 1.4;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+}
+.yplayer *, .yplayer *::before, .yplayer *::after { box-sizing: border-box; }
+.yplayer button { font: inherit; color: inherit; }
+.yplayer:fullscreen { border-radius: 0; aspect-ratio: auto; width: 100%; height: 100%; min-height: 0; }
+.yplayer:focus-visible { outline: 3px solid var(--yp-fox); outline-offset: 3px; }
+
+.yp-video {
+  width: 100%; height: 100%;
+  display: block;
+  object-fit: contain;
+  background: #000;
+}
+
+/* ---------- холст «720+» ----------
+   Лежит ровно поверх видео. Само видео продолжает играть под ним:
+   прятать его через display нельзя — на iOS браузер вправе
+   остановить скрытый элемент. */
+.yp-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  background: #000;
+  z-index: 1;
+}
+.yp-canvas[hidden] { display: none; }
+.yplayer[data-enhanced="yes"] .yp-video { opacity: 0; }
+
+/* Всё управление — над холстом */
+.yplayer .yp-panel,
+.yplayer .yp-top,
+.yplayer .yp-bigplay,
+.yplayer .yp-loading,
+.yplayer .yp-gesture { z-index: 3; }
+.yplayer .yp-veil { z-index: 2; }
+.yplayer .yp-error { z-index: 6; }
+
+/* ---------- затемнение под панелями ---------- */
+.yp-veil {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(0,0,0,.78) 0%, transparent 34%),
+              linear-gradient(to bottom, rgba(0,0,0,.5) 0%, transparent 22%);
+  transition: opacity var(--yp-dur) var(--yp-ease);
+}
+.yplayer[data-idle="yes"] .yp-veil { opacity: 0; }
+.yplayer[data-idle="yes"] { cursor: none; }
+
+/* ---------- верхняя строка ---------- */
+.yp-top {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: var(--yp-pad);
+  display: flex; align-items: flex-start; gap: 12px;
+  transition: opacity var(--yp-dur) var(--yp-ease), transform var(--yp-dur) var(--yp-ease);
+}
+.yplayer[data-idle="yes"] .yp-top { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+
+.yp-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.yp-title {
+  font-family: var(--yp-font-display);
+  font-size: .9375rem;
+  font-weight: 600;
+  text-shadow: 0 2px 12px rgba(0,0,0,.7);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.yp-subtitle {
+  font-family: var(--yp-font-mono);
+  font-size: .6875rem;
+  color: rgba(255,255,255,.72);
+  letter-spacing: .06em;
+}
+
+/* ---------- центральная кнопка ---------- */
+.yp-bigplay {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 78px; height: 78px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%;
+  background: var(--yp-accent);
+  box-shadow: 0 10px 44px var(--yp-accent-glow);
+  cursor: pointer;
+  transition: transform var(--yp-dur) var(--yp-ease-out), opacity var(--yp-dur) var(--yp-ease);
+}
+/* Треугольник play зрительно смещён влево от своего центра.
+   Сдвигаем сам символ, а не кнопку — иначе круг встанет криво. */
+.yp-bigplay svg { width: 26px; height: 26px; fill: #fff; position: relative; left: 2px; }
+.yp-bigplay:hover { transform: translate(-50%, -50%) scale(1.08); }
+.yplayer[data-playing="yes"] .yp-bigplay { opacity: 0; pointer-events: none; transform: translate(-50%,-50%) scale(.8); }
+
+/* ---------- жесты перемотки ---------- */
+.yp-gesture {
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  width: 92px; height: 92px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  font-family: var(--yp-font-mono);
+  font-size: .6875rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s var(--yp-ease);
+}
+.yp-gesture svg { width: 22px; height: 22px; fill: currentColor; }
+.yp-gesture--left { left: 6%; }
+.yp-gesture--right { right: 6%; }
+.yp-gesture[data-state="on"] { opacity: 1; animation: yp-gesture-pop .45s var(--yp-ease-out); }
+@keyframes yp-gesture-pop { from { transform: translateY(-50%) scale(.8); } }
+
+/* ---------- загрузка: «лисий огонь» ---------- */
+.yp-loading {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px;
+  background: rgba(6,4,12,.72);
+  backdrop-filter: blur(3px);
+  color: var(--yp-muted);
+  font-size: .8125rem;
+  transition: opacity .3s var(--yp-ease);
+}
+.yp-loading[data-state="off"] { opacity: 0; pointer-events: none; }
+
+.yp-flame { display: flex; gap: 6px; align-items: flex-end; height: 34px; }
+.yp-flame i {
+  display: block;
+  width: 6px;
+  border-radius: 3px;
+  background: var(--yp-accent);
+  box-shadow: 0 0 14px var(--yp-accent);
+  transform-origin: bottom center;
+  will-change: transform;
+  animation: yp-flame 1.1s ease-in-out infinite alternate;
+}
+.yp-flame i:nth-child(1) { height: 14px; }
+.yp-flame i:nth-child(2) { height: 26px; animation-delay: .18s; background: var(--yp-fox); box-shadow: 0 0 14px var(--yp-fox); }
+.yp-flame i:nth-child(3) { height: 18px; animation-delay: .36s; }
+/* alternate вместо полного цикла: склейка кадров незаметна */
+@keyframes yp-flame {
+  from { transform: scaleY(.55); opacity: .55; }
+  to { transform: scaleY(1.2); opacity: 1; }
+}
+
+/* ---------- ошибка ----------
+   Самостоятельный экран с плотным фоном: полупрозрачная плёнка
+   пропускала постер, и выглядело это как «на плеер что-то вылезло». */
+.yp-error {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  background:
+    radial-gradient(90% 70% at 50% 0%, var(--yp-accent-soft), transparent 70%),
+    rgba(8, 6, 14, .985);
+}
+.yp-error[data-state="off"] { display: none; }
+.yp-error h4 {
+  margin: 0;
+  font-family: var(--yp-font-display);
+  font-size: clamp(1rem, 3.4vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+.yp-error p { margin: 0; max-width: 34ch; font-size: .8125rem; color: var(--yp-muted); line-height: 1.5; }
+.yp-error-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.yp-err-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--yp-line-strong);
+  background: transparent;
+  cursor: pointer;
+  font-size: .8125rem;
+  font-weight: 600;
+  transition: background var(--yp-dur) var(--yp-ease);
+}
+.yp-err-btn:hover { background: rgba(255,255,255,.08); }
+.yp-err-btn.-primary { background: var(--yp-accent); border-color: transparent; color: #fff; }
+
+/* ---------- нижняя панель ---------- */
+.yp-panel {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 0 var(--yp-pad) calc(var(--yp-pad) - 4px);
+  transition: opacity var(--yp-dur) var(--yp-ease), transform var(--yp-dur) var(--yp-ease);
+}
+.yplayer[data-idle="yes"] .yp-panel { opacity: 0; transform: translateY(12px); pointer-events: none; }
+
+/* дорожка */
+.yp-track {
+  position: relative;
+  height: 18px;
+  display: flex; align-items: center;
+  cursor: pointer;
+  touch-action: none;
+  outline: none;
+}
+.yp-track::before {
+  content: '';
+  position: absolute; left: 0; right: 0;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.2);
+  transition: height .15s var(--yp-ease);
+}
+.yp-buffer, .yp-played {
+  position: absolute; left: 0;
+  height: 4px;
+  border-radius: 99px;
+  transition: height .15s var(--yp-ease);
+}
+.yp-buffer { background: rgba(255,255,255,.3); width: 0; }
+.yp-played {
+  width: 0;
+  background: linear-gradient(90deg, var(--yp-accent), var(--yp-accent-2));
+  box-shadow: 0 0 12px var(--yp-accent-glow);
+}
+.yp-head {
+  position: absolute; right: -6px; top: 50%;
+  width: 12px; height: 12px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--yp-accent-glow);
+  transform: scale(0);
+  transition: transform .18s var(--yp-ease);
+}
+.yp-track:hover::before,
+.yp-track:hover .yp-buffer,
+.yp-track:hover .yp-played,
+.yp-track:focus-visible::before,
+.yp-track:focus-visible .yp-played,
+.yplayer[data-scrubbing="yes"] .yp-played { height: 6px; }
+.yp-track:hover .yp-head,
+.yp-track:focus-visible .yp-head,
+.yplayer[data-scrubbing="yes"] .yp-head { transform: scale(1); }
+
+.yp-hover {
+  position: absolute; bottom: 22px;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s var(--yp-ease);
+}
+.yp-track:hover .yp-hover { opacity: 1; }
+.yp-hover-time {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(12,10,20,.9);
+  border: 1px solid var(--yp-line);
+  font-family: var(--yp-font-mono);
+  font-size: .6875rem;
+}
+
+/* кнопки */
+.yp-buttons { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+.yp-flex { flex: 1; }
+
+.yp-btn {
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  padding: 0;
+  border: 0; border-radius: 10px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--yp-dur) var(--yp-ease), opacity var(--yp-dur) var(--yp-ease), transform .12s ease;
+}
+.yp-btn[hidden] { display: none; }
+.yp-btn svg { width: 19px; height: 19px; fill: currentColor; }
+.yp-btn:hover { background: rgba(255,255,255,.12); }
+.yp-btn:focus-visible { outline: 2px solid var(--yp-fox); outline-offset: 1px; }
+.yp-btn:disabled { opacity: .3; pointer-events: none; }
+
+.yp-toggle .i-pause, .yplayer[data-playing="yes"] .yp-toggle .i-play { display: none; }
+.yplayer[data-playing="yes"] .yp-toggle .i-pause { display: block; }
+
+.yp-mute .i-mute, .yplayer[data-muted="yes"] .yp-mute .i-vol { display: none; }
+.yplayer[data-muted="yes"] .yp-mute .i-mute { display: block; }
+
+.yp-full .i-exit, .yplayer[data-fullscreen="yes"] .yp-full .i-full { display: none; }
+.yplayer[data-fullscreen="yes"] .yp-full .i-exit { display: block; }
+
+/* «вперёд на 1:30»: в первые три минуты мягко подсвечена */
+.yp-jump svg { transform: translateX(1px); }
+.yp-jump.-hint { color: var(--yp-accent); background: var(--yp-accent-soft); }
+.yp-jump.-hit { color: #fff; background: var(--yp-accent); transform: scale(.92); }
+
+/* громкость */
+.yp-volume { display: flex; align-items: center; }
+.yp-vol-range {
+  width: 0;
+  opacity: 0;
+  height: 4px;
+  margin: 0;
+  accent-color: var(--yp-fox);
+  background: rgba(255,255,255,.24);
+  border-radius: 99px;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: width var(--yp-dur) var(--yp-ease), opacity var(--yp-dur) var(--yp-ease), margin var(--yp-dur) var(--yp-ease);
+  cursor: pointer;
+}
+.yp-volume:hover .yp-vol-range,
+.yp-vol-range:focus-visible { width: 74px; opacity: 1; margin-left: 8px; }
+.yp-vol-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #fff;
+}
+.yp-vol-range::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; }
+
+.yp-time {
+  font-family: var(--yp-font-mono);
+  font-size: .6875rem;
+  letter-spacing: .04em;
+  margin-left: 8px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.yp-time b { font-weight: 600; }
+.yp-time s { text-decoration: none; opacity: .5; margin: 0 2px; }
+.yp-time em { font-style: normal; opacity: .65; }
+
+/* ---------- меню настроек ----------
+   Высота ограничена, содержимое прокручивается: на телефоне в
+   горизонтали три раздела не помещались, и нижние пункты уезжали
+   за край без возможности до них добраться. */
+.yp-menu-wrap { position: relative; }
+.yp-menu {
+  position: absolute; right: 0; bottom: calc(100% + 10px);
+  min-width: 178px;
+  max-height: min(58vh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding: 8px;
+  background: var(--yp-surface);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--yp-line-strong);
+  border-radius: var(--yp-radius-menu);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+  transform-origin: bottom right;
+  animation: yp-menu-in .2s var(--yp-ease-out);
+}
+.yp-menu[data-state="off"] { display: none; }
+.yp-menu::-webkit-scrollbar { width: 4px; }
+.yp-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 999px; }
+@keyframes yp-menu-in { from { opacity: 0; transform: scale(.94) translateY(6px); } }
+
+.yp-menu-group + .yp-menu-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--yp-line); }
+/* Заголовок раздела прилипает: прокрутив список качества,
+   всё равно видно, что именно выбираешь */
+.yp-menu-label {
+  position: sticky; top: 0; z-index: 1;
+  display: block;
+  padding: 4px 10px;
+  background: inherit;
+  font-family: var(--yp-font-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--yp-muted-dim);
+}
+.yp-menu-item {
+  display: block; width: 100%;
+  padding: 8px 10px;
+  border: 0; border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  font-size: .8125rem;
+  cursor: pointer;
+}
+.yp-menu-item:hover, .yp-menu-item:focus-visible { background: rgba(255,255,255,.08); outline: none; }
+.yp-menu-item.-on { color: var(--yp-fox); background: var(--yp-fox-soft); }
+.yp-menu-empty { display: block; padding: 8px 10px; font-size: .8125rem; color: var(--yp-muted-dim); }
+.yp-menu-note {
+  display: block;
+  padding: 6px 10px 2px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, .45);
+  max-width: 190px;
+}
+
+/* переключатель «720+» */
+.yp-menu-item.-switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.yp-switch {
+  flex: none;
+  position: relative;
+  width: 34px; height: 19px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .16);
+  transition: background .2s ease;
+}
+.yp-switch::after {
+  content: '';
+  position: absolute; top: 2px; left: 2px;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .2s ease;
+}
+.yp-menu-item.-on .yp-switch { background: var(--yp-accent); }
+.yp-menu-item.-on .yp-switch::after { transform: translateX(15px); }
+
+/* ============================================================
+   Адаптив
+   ============================================================ */
+@media (max-width: 600px) {
+  .yp-prev, .yp-pip { display: none; }
+  .yp-vol-range { display: none; }
+  .yp-bigplay { width: 64px; height: 64px; }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .yp-menu { max-height: 68vh; }
+}
+
+/* Сенсорный экран: площадки кнопок под палец, дорожка выше.
+   Пока панель видна, она перехватывает касания целиком — иначе
+   первое нажатие уходило «сквозь» неё на видео. */
+@media (hover: none) {
+  .yp-track { height: 26px; }
+  .yp-btn { width: 44px; height: 44px; }
+  .yp-btn svg { width: 21px; height: 21px; }
+  .yplayer:not([data-idle="yes"]) .yp-panel,
+  .yplayer:not([data-idle="yes"]) .yp-top { pointer-events: auto; }
+  .yp-menu { min-width: 200px; }
+  .yp-menu button { padding: 12px 14px; }
+}
+
+/* Телевизор (attachRemote(player, { tv: true })):
+   с трёх метров иконка в 19px не читается */
+.yplayer[data-tv="on"] .yp-panel { padding: 20px 28px; }
+.yplayer[data-tv="on"] .yp-btn { width: 56px; height: 56px; }
+.yplayer[data-tv="on"] .yp-btn svg { width: 26px; height: 26px; }
+.yplayer[data-tv="on"] .yp-btn:focus { outline: 3px solid var(--yp-fox); background: rgba(255,255,255,.14); }
+.yplayer[data-tv="on"] .yp-track { height: 28px; }
+.yplayer[data-tv="on"] .yp-time { font-size: .9rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .yplayer *, .yplayer *::before, .yplayer *::after {
+    animation-duration: .001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001s !important;
+  }
+}

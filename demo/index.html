@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Yokaii Player — демо HTML5-плеера для аниме</title>
+  <meta name="description" content="Живое демо Yokaii Player: открытый HTML5-плеер для аниме-сайтов. HLS и MP4, улучшение картинки 720+ на WebGL, жесты, горячие клавиши, пульт Smart TV. MIT.">
+  <meta name="theme-color" content="#09070F">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta property="og:title" content="Yokaii Player — открытый плеер для аниме">
+  <meta property="og:description" content="HLS/MP4, «720+» на WebGL, жесты, пульт Smart TV. Vanilla JS, MIT.">
+  <meta property="og:image" content="../assets/preview.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../src/yokaii-player.css">
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+  <header class="head">
+    <a class="brand" href="https://github.com/" id="repo-link" aria-label="Репозиторий на GitHub">
+      <img src="favicon.svg" width="44" height="44" alt="">
+      <span>Yokaii Player</span>
+    </a>
+    <div class="lang" role="group" aria-label="Язык интерфейса плеера">
+      <button data-lang="ru" aria-pressed="true">RU</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1>Плеер для аниме, который не мешает смотреть</h1>
+    <p class="lead">
+      Открытый HTML5-плеер с сайта <a href="https://yokaii.web.app">Yokaii</a>.
+      Без фреймворков и сборки: один ES-модуль и один CSS-файл.
+    </p>
+
+    <div id="player" class="player"></div>
+
+    <section class="controls" aria-label="Что показать">
+      <div class="sources" role="tablist" aria-label="Источник">
+        <button role="tab" data-source="local" aria-selected="true">Демо-ролик (WebM)</button>
+        <button role="tab" data-source="hls" aria-selected="false">HLS-поток</button>
+        <button role="tab" data-source="mp4" aria-selected="false">Открытые фильмы (MP4)</button>
+      </div>
+
+      <div class="episodes" id="episodes" aria-label="Серии"></div>
+
+      <form class="own" id="own">
+        <label for="own-url">Своя ссылка на .mp4, .webm или .m3u8</label>
+        <div class="own__row">
+          <input id="own-url" type="url" inputmode="url" placeholder="https://example.com/video.m3u8" required>
+          <button type="submit">Включить</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Клавиши</h2>
+        <dl class="keys">
+          <dt><kbd>Пробел</kbd> <kbd>K</kbd></dt><dd>пауза</dd>
+          <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>±5 секунд, с <kbd>Shift</kbd> ±30</dd>
+          <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>громкость</dd>
+          <dt><kbd>S</kbd></dt><dd>пропустить опенинг, +1:30</dd>
+          <dt><kbd>N</kbd> <kbd>B</kbd></dt><dd>следующая и предыдущая серия</dd>
+          <dt><kbd>F</kbd> <kbd>M</kbd> <kbd>P</kbd></dt><dd>весь экран, звук, картинка в картинке</dd>
+          <dt><kbd>0</kbd>–<kbd>9</kbd></dt><dd>прыжок на 0–90% серии</dd>
+        </dl>
+        <p class="note">На телефоне двойной тап по краю кадра перематывает, по центру — пауза.
+          Пульт телевизора и медиакнопки гарнитуры тоже работают.</p>
+      </div>
+
+      <div class="card">
+        <h2>События плеера</h2>
+        <ol class="log" id="log" aria-live="polite"></ol>
+        <p class="note">Их слушает страница: сохранить прогресс, включить следующую серию,
+          синхронизировать совместный просмотр.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    Лицензия MIT. Сделано для <a href="https://yokaii.web.app">yokaii.web.app</a>.
+    Демо-ролик нарисован для этого репозитория; фильмы Blender Foundation — CC BY.
+  </footer>
+
+  <script type="module" src="demo.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+/* Демо-страница. Палитра и шрифты — те же, что на yokaii.web.app */
+:root {
+  --void: #09070F;
+  --sumi: #131020;
+  --sumi-2: #1B1730;
+  --line: rgba(255, 255, 255, .08);
+  --paper: #F2EFFA;
+  --mist: #9A93B4;
+  --shu: #F2452C;
+  --fox: #7FE8D8;
+  --f-display: 'Unbounded', 'Golos Text', system-ui, sans-serif;
+  --f-body: 'Golos Text', system-ui, -apple-system, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(80vw 50vh at 70% -10%, rgba(242, 69, 44, .14), transparent 70%),
+    radial-gradient(60vw 40vh at 0% 30%, rgba(127, 232, 216, .06), transparent 70%),
+    var(--void);
+  color: var(--paper);
+  font: 400 16px/1.6 var(--f-body);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+a { color: var(--fox); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--fox); outline-offset: 3px; }
+
+/* Плеер берёт шрифты страницы */
+.yplayer { --yp-font: var(--f-body); --yp-font-display: var(--f-display); --yp-font-mono: var(--f-mono); }
+
+.head, .wrap, .foot { width: min(1120px, 100% - 32px); margin-inline: auto; }
+
+.head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 0 8px;
+}
+.brand {
+  display: inline-flex; align-items: center; gap: 12px;
+  color: var(--paper); text-decoration: none;
+  font: 600 1.05rem var(--f-display);
+  letter-spacing: -.01em;
+}
+.brand img { border-radius: 12px; }
+
+.lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.lang button {
+  font: 600 .8rem var(--f-mono); color: var(--mist);
+  background: none; border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer;
+}
+.lang button[aria-pressed="true"] { background: var(--sumi-2); color: var(--paper); }
+
+h1 {
+  margin: 36px 0 10px;
+  max-width: 17ch;
+  font: 800 clamp(1.9rem, 5.4vw, 3.4rem)/1.05 var(--f-display);
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.lead { margin: 0 0 30px; max-width: 58ch; color: var(--mist); font-size: 1.05rem; }
+
+.player { box-shadow: 0 40px 120px rgba(242, 69, 44, .12), 0 24px 60px rgba(0, 0, 0, .6); }
+
+/* ---- выбор источника и серий ---- */
+.controls { display: grid; gap: 16px; margin: 22px 0 40px; }
+
+.sources { display: flex; flex-wrap: wrap; gap: 6px; }
+.sources button, .episodes button, .own button {
+  font: 500 .9rem var(--f-body);
+  color: var(--paper);
+  background: var(--sumi);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.sources button:hover, .episodes button:hover { border-color: rgba(255, 255, 255, .2); }
+.sources button[aria-selected="true"] { background: var(--shu); border-color: transparent; }
+
+.episodes { display: flex; flex-wrap: wrap; gap: 6px; min-height: 0; }
+.episodes button { font-size: .85rem; padding: 8px 12px; color: var(--mist); }
+.episodes button[aria-pressed="true"] { color: var(--fox); border-color: rgba(127, 232, 216, .45); }
+
+.own label { display: block; margin-bottom: 6px; color: var(--mist); font-size: .9rem; }
+.own__row { display: flex; gap: 6px; }
+.own input {
+  flex: 1; min-width: 0;
+  font: 400 .95rem var(--f-mono);
+  color: var(--paper);
+  background: var(--sumi);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.own input::placeholder { color: #5f587a; }
+.own button { background: var(--sumi-2); }
+
+/* ---- справка и журнал ---- */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.card {
+  background: var(--sumi);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 22px 24px;
+}
+.card h2 { margin: 0 0 14px; font: 600 1.05rem var(--f-display); letter-spacing: -.01em; }
+.note { margin: 16px 0 0; color: var(--mist); font-size: .88rem; }
+
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; font-size: .92rem; }
+.keys dt { white-space: nowrap; }
+.keys dd { margin: 0; color: var(--mist); }
+kbd {
+  display: inline-block; min-width: 1.9em; padding: 2px 6px;
+  font: 600 .78rem var(--f-mono); text-align: center;
+  color: var(--paper); background: var(--sumi-2);
+  border: 1px solid rgba(255, 255, 255, .12); border-bottom-width: 2px; border-radius: 6px;
+}
+
+.log { list-style: none; margin: 0; padding: 0; font: 400 .8rem/1.5 var(--f-mono); min-height: 12em; }
+.log li { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--line); overflow: hidden; }
+.log li:first-child b { color: var(--fox); }
+.log b { flex: none; min-width: 9.5em; font-weight: 600; }
+.log span { color: var(--mist); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log:empty::before { content: 'Нажмите пуск — события появятся здесь'; color: #5f587a; }
+
+.foot { padding: 40px 0 32px; color: #6C6688; font-size: .85rem; }
+
+@media (max-width: 600px) {
+  h1 { margin-top: 22px; }
+  .player { --yp-radius: 14px; }
+  .card { padding: 18px; }
+  .keys { grid-template-columns: 1fr; gap: 2px; }
+  .keys dd { margin-bottom: 8px; }
+}
