@@ -8,7 +8,7 @@
 enhancement, mobile gestures, hotkeys and Smart TV remote support. Vanilla JavaScript,
 zero dependencies, no build step.
 
-[**▶ Live demo**](https://USERNAME.github.io/yokaii-player/) ·
+[**▶ Live demo**](https://fut1le.github.io/yokaii-player/demo/) ·
 [Yokaii](https://yokaii.web.app) ·
 [API](docs/API.md) ·
 [How “720+” works](docs/ENHANCE.md) ·
@@ -47,11 +47,11 @@ There are no third-party API endpoints, keys or scrapers here — just a UI on t
 ## Quick start
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/USERNAME/yokaii-player@1.0.0/src/yokaii-player.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Fut1le/yokaii-player@1.0.0/src/yokaii-player.css">
 <div id="player"></div>
 
 <script type="module">
-  import { YokaiiPlayer } from 'https://cdn.jsdelivr.net/gh/USERNAME/yokaii-player@1.0.0/src/index.js';
+  import { YokaiiPlayer } from 'https://cdn.jsdelivr.net/gh/Fut1le/yokaii-player@1.0.0/src/index.js';
 
   const player = new YokaiiPlayer(document.getElementById('player'), {
     lang: 'en',

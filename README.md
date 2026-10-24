@@ -7,7 +7,7 @@
 **Открытый HTML5-плеер для аниме-сайтов.** HLS и MP4, улучшение картинки «720+» на WebGL,
 жесты на телефоне, горячие клавиши и пульт Smart TV. Чистый JavaScript без зависимостей и сборки.
 
-[**▶ Живое демо**](https://USERNAME.github.io/yokaii-player/) ·
+[**▶ Живое демо**](https://fut1le.github.io/yokaii-player/demo/) ·
 [Сайт Yokaii](https://yokaii.web.app) ·
 [API](docs/API.md) ·
 [Как работает «720+»](docs/ENHANCE.md) ·
@@ -56,12 +56,12 @@
 Сборка не нужна. Скопируйте папку `src/` к себе или подключите с jsDelivr:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/USERNAME/yokaii-player@1.0.0/src/yokaii-player.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Fut1le/yokaii-player@1.0.0/src/yokaii-player.css">
 
 <div id="player"></div>
 
 <script type="module">
-  import { YokaiiPlayer } from 'https://cdn.jsdelivr.net/gh/USERNAME/yokaii-player@1.0.0/src/index.js';
+  import { YokaiiPlayer } from 'https://cdn.jsdelivr.net/gh/Fut1le/yokaii-player@1.0.0/src/index.js';
 
   const player = new YokaiiPlayer(document.getElementById('player'), {
     title: 'Название тайтла',

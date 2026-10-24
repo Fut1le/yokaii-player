@@ -18,9 +18,9 @@
     "anime", "anime-player", "video-player", "html5-video", "hls", "hls-player", "m3u8",
     "player", "webgl", "anime4k", "smart-tv", "tizen", "webos", "vanilla-js", "es-modules"
   ],
-  "homepage": "https://USERNAME.github.io/yokaii-player/",
-  "repository": { "type": "git", "url": "git+https://github.com/USERNAME/yokaii-player.git" },
-  "bugs": { "url": "https://github.com/USERNAME/yokaii-player/issues" },
+  "homepage": "https://fut1le.github.io/yokaii-player/demo/",
+  "repository": { "type": "git", "url": "git+https://github.com/Fut1le/yokaii-player.git" },
+  "bugs": { "url": "https://github.com/Fut1le/yokaii-player/issues" },
   "author": "Vladimir (https://yokaii.web.app)",
   "license": "MIT"
 }
