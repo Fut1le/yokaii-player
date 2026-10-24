@@ -1,0 +1,16 @@
+name: Идея / Feature request
+description: Чего не хватает плееру
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Что хочется / What you need
+      description: Опишите задачу, а не только решение — так проще найти лучший вариант
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Зачем / Why
+      description: "Где это пригодится: сайт, ТВ, телефон"

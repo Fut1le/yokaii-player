@@ -1,7 +1,8 @@
 /* ============================================================
    Демо Yokaii Player
-   Показывает всё публичное API: серии, качество, события,
-   продолжение с места, пульт и смену языка.
+   Показывает всё публичное API: серии, качество, субтитры,
+   метки опенинга и эндинга, события, продолжение с места,
+   пульт и смену языка.
    ============================================================ */
 
 import { YokaiiPlayer, attachRemote } from '../src/index.js';
@@ -17,15 +18,27 @@ const CATALOG = {
       {
         number: 1,
         title: 'Ночь',
+        // От лучшего к худшему: на слабой сети плеер спустится вниз сам
         sources: [
           { src: 'media/torii-480p.webm', label: '480p' },
           { src: 'media/torii-360p.webm', label: '360p' },
         ],
+        // Два формата сразу: WebVTT и SRT — плеер читает оба
+        subtitles: [
+          { src: 'media/torii-ru.vtt', label: 'Русские', lang: 'ru', default: true },
+          { src: 'media/torii-en.srt', label: 'English', lang: 'en' },
+        ],
+        // Точные метки: кнопка «пропустить» прыгнет ровно на конец
+        skip: {
+          opening: { start: 3, stop: 10 },
+          ending: { start: 16.5, stop: 20 },
+        },
       },
       {
         number: 2,
         title: 'Та же ночь в 360p',
         sources: [{ src: 'media/torii-360p.webm', label: '360p' }],
+        subtitles: [{ src: 'media/torii-en.srt', label: 'English', lang: 'en' }],
       },
     ],
   },
@@ -118,7 +131,8 @@ function build({ episode = 1, keepTime = 0 } = {}) {
   detachRemote = attachRemote(player);
 
   ['ready', 'play', 'pause', 'seeked', 'ended', 'error',
-    'episodechange', 'qualitychange', 'enhancechange', 'enhancefail']
+    'episodechange', 'qualitychange', 'enhancechange', 'enhancefail',
+    'subtitlechange', 'subtitleerror', 'skip']
     .forEach((name) => player.on(name, (p) => note(name, p)));
 
   player.on('timeupdate', saveProgress);
@@ -181,12 +195,6 @@ $('#own').onsubmit = (e) => {
   $('#episodes').replaceChildren();
 };
 
-/* Ссылка на репозиторий — на Pages её можно вычислить из адреса */
-const m = location.hostname.match(/^([^.]+)\.github\.io$/);
-if (m) {
-  const repo = location.pathname.split('/')[1];
-  $('#repo-link').href = `https://github.com/${m[1]}/${repo}`;
-}
 
 paintEpisodes(1);
 build();

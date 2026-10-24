@@ -1,0 +1,25 @@
+1
+00:00:00,600 --> 00:00:03,000
+Night by the old torii gate.
+
+2
+00:00:03,200 --> 00:00:06,400
+They say the fox fire
+only lights up for those who <i>wait</i>.
+
+3
+00:00:06,800 --> 00:00:09,800
+{\an8}— Then I'll wait.
+
+4
+00:00:10,400 --> 00:00:13,600
+The lights flared one after another,
+as if someone were counting steps.
+
+5
+00:00:14,000 --> 00:00:16,200
+<b>Kitsunebi.</b>
+
+6
+00:00:16,600 --> 00:00:19,600
+<font color="#7FE8D8">See you tomorrow, fox.</font>

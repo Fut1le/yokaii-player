@@ -1,0 +1,39 @@
+name: Ошибка / Bug
+description: Плеер работает не так, как должен
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Что случилось / What happened
+      description: Что делали, что ожидали и что получили
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Браузер и версия / Browser
+      placeholder: Safari 18.1, Chrome 130, Samsung Tizen 2023…
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Устройство / Device
+      placeholder: iPhone 15, Pixel 8, LG webOS TV, Windows-ноутбук…
+  - type: dropdown
+    id: format
+    attributes:
+      label: Формат видео / Video format
+      options: [HLS (.m3u8), MP4, WebM, Не знаю / Not sure]
+  - type: input
+    id: version
+    attributes:
+      label: Версия плеера / Player version
+      placeholder: 1.1.0
+  - type: textarea
+    id: console
+    attributes:
+      label: Консоль / Console
+      description: Ошибки из консоли браузера, если есть
+      render: text

@@ -3,7 +3,7 @@
 ## Подключение
 
 ```js
-import { YokaiiPlayer, attachRemote, Enhancer } from './src/index.js';
+import { YokaiiPlayer, attachRemote, Enhancer, parseSubtitles, toVtt } from './src/index.js';
 import YokaiiPlayer from './src/index.js'; // так тоже можно
 ```
 
@@ -35,14 +35,18 @@ const player = new YokaiiPlayer(mount, options);
 | `sourceLabel` | `''` | Приписка к номеру серии, например название озвучки |
 | `seekStep` | `5` | Перемотка стрелками и двойным тапом, секунды |
 | `seekStepLong` | `30` | Перемотка с <kbd>Shift</kbd> и с пульта |
-| `skipStep` | `90` | Кнопка «пропустить опенинг» |
+| `skipStep` | `90` | Кнопка «пропустить опенинг», если у серии нет меток `skip` |
+| `autoSkip` | `false` | Самому перескакивать опенинг и эндинг по меткам серии. Каждая метка пропускается один раз: если человек вернулся назад, значит, хочет посмотреть |
 | `idleHide` | `2600` | Через сколько миллисекунд прятать панель при управлении мышью. На сенсорном экране не меньше 4200 |
 | `speeds` | `[0.75, 1, 1.25, 1.5, 2]` | Пункты меню скорости |
 | `keyboard` | `true` | Горячие клавиши на странице |
-| `storageKey` | `'yokaii-player'` | Префикс ключей `localStorage` для громкости и «720+» |
+| `storageKey` | `'yokaii-player'` | Префикс ключей `localStorage` для громкости, «720+» и выбранных субтитров |
 | `crossOrigin` | `null` | `'anonymous'` для всех источников, если CDN отдаёт CORS-заголовки. Без CORS на CDN не ставьте: браузер откажется грузить видео |
-| `hlsUrl` | jsDelivr, hls.js 1.5.13 | Откуда брать hls.js. Можно указать свою копию |
-| `hlsConfig` | `{ capLevelToPlayerSize: true, maxBufferLength: 40 }` | Настройки hls.js |
+| `hlsUrl` | jsDelivr, hls.js 1.5.13 | Откуда брать hls.js. Строка или массив адресов: пробуются по очереди. Свою копию ставьте первой — публичные CDN доступны не во всех сетях |
+| `hlsConfig` | `{}` | Настройки hls.js. **Сливаются** с настройками плеера (больше повторов загрузки сегментов, `capLevelToPlayerSize`), передавайте только то, что меняете |
+| `autoQuality` | `true` | На слабой сети начинать с самого лёгкого источника, а если видео встало — переключиться на него с той же секунды. Выбор качества руками это выключает |
+| `stallTimeout` | `9000` | Сколько миллисекунд буферизации считать «видео встало» |
+| `retries` | `3` | Сколько раз переподключаться после обрыва сети, прежде чем показать ошибку |
 | `enhance.enabled` | `false` | Включить «720+» по умолчанию, пока человек сам не выбрал |
 | `enhance.maxHeight` | `1080` | Потолок растяжения кадра по высоте |
 
@@ -56,10 +60,18 @@ player.setEpisodes([
   {
     number: 1,               // обязательно, по нему работают next/prev
     title: 'Начало',         // необязательно
-    sources: [               // первый — качество по умолчанию
+    sources: [               // от лучшего к худшему, первый — по умолчанию
       { src: 'https://cdn.example/ep1.m3u8', label: '1080p', crossOrigin: 'anonymous' },
       { src: 'https://cdn.example/ep1-720.mp4', quality: 720 },
     ],
+    subtitles: [             // необязательно: WebVTT или SRT
+      { src: '/subs/ep1.ru.vtt', label: 'Русские', lang: 'ru', default: true },
+      { src: '/subs/ep1.en.srt', label: 'English', lang: 'en' },
+    ],
+    skip: {                  // необязательно: точные метки в секундах
+      opening: { start: 85, stop: 175 },
+      ending: { start: 1320, stop: 1410 },
+    },
   },
 ], { title: 'Название тайтла', subtitle: '' });
 ```
@@ -74,25 +86,62 @@ player.setEpisodes([
 | `quality` | Число; если нет `label`, в меню будет `720p` |
 | `crossOrigin` | CORS только для этого источника |
 
+Порядок источников важен: на слабой сети плеер берёт **последний** (самый лёгкий),
+поэтому идите от лучшего качества к худшему.
+
+### Субтитры
+
+| Поле | Что это |
+|---|---|
+| `src` | Ссылка на `.vtt` или `.srt`. Можно с другого домена, если он отдаёт CORS-заголовок |
+| `text` | Вместо `src`: сам текст субтитров строкой |
+| `label` | Подпись в меню |
+| `lang` | Код языка (`ru`, `en`, `ja`). По нему плеер запоминает выбор человека между сериями |
+| `default` | Включить, если человек ещё ничего не выбирал |
+
+Файл скачивается через `fetch`, а не через `<track src>`: так не нужен `crossorigin`
+на самом видео. Теги ASS из фансабов (`{\an8}`, `<font>`) вычищаются, курсив, жирный
+и `<ruby>` для фуриганы остаются. Реплики рисует сам плеер: поверх «720+» и над панелью
+управления. В родном полноэкранном режиме iPhone субтитры рисует браузер.
+
+Парсер доступен и отдельно:
+
+```js
+import { parseSubtitles, toVtt } from './src/index.js';
+
+const cues = parseSubtitles(srtText); // [{ start, end, text }]
+const vtt = toVtt(cues);              // строка WebVTT
+```
+
+### Метки опенинга и эндинга
+
+`skip.opening` и `skip.ending` — секунды начала и конца. Пока идёт отрезок, кнопка
+пропуска подсвечивается и подписана честно: «Пропустить опенинг — до 2:55». Нажатие
+или <kbd>S</kbd> прыгает ровно на `stop`. Отрезки видны на дорожке. Меток нет —
+кнопка прыгает на `skipStep` вперёд и мягко подсвечивается в первые три минуты.
+
 ## Методы
 
 | Метод | Что делает |
 |---|---|
 | `setEpisodes(list, { title, subtitle })` | Задать список серий |
 | `playEpisode(number, startAt = 0)` | Включить серию с нужной секунды. Возвращает промис с объектом серии |
-| `loadFile(src, { startAt, type, title, crossOrigin })` | Включить один файл без списка серий |
+| `loadFile(src, { startAt, type, title, crossOrigin, subtitles, skip })` | Включить один файл без списка серий |
 | `nextEpisode()` / `prevEpisode()` | Соседняя серия. Возвращает промис или `null`, если серии дальше нет |
 | `play()` / `pause()` / `toggle()` | Управление воспроизведением |
 | `seek(seconds, hintSide?)` | Перемотка. `hintSide`: `'left'` или `'right'` покажет круглую подсказку жеста |
 | `setVolume(0…1)` | Громкость |
 | `setSpeed(rate)` | Скорость |
-| `setQuality(index)` | Качество по индексу в `sources`, позиция сохраняется |
+| `setQuality(index)` | Качество по индексу в `sources`, позиция сохраняется. Выключает `autoQuality` |
+| `setSubtitles(index)` | Субтитры по индексу в `subtitles`, `-1` — выключить. Выбор запоминается |
+| `toggleSubtitles()` | Выключить субтитры или вернуть последние (клавиша <kbd>C</kbd>) |
+| `skip()` | Пропустить опенинг или эндинг (кнопка и клавиша <kbd>S</kbd>) |
 | `setEnhance('on' \| 'off')` | «720+» |
 | `toggleFullscreen()` / `togglePip()` | Весь экран / картинка в картинке |
-| `handleMedia(action)` | Медиадействие: `toggle`, `play`, `pause`, `forward`, `rewind`, `next`, `prev`, `wake` |
+| `handleMedia(action)` | Медиадействие: `toggle`, `play`, `pause`, `forward`, `rewind`, `next`, `prev`, `skip`, `wake` |
 | `showError(title, text, actions)` | Экран ошибки с кнопками: `[{ label, onClick, primary }]` |
 | `hideError()` | Убрать экран ошибки |
-| `state()` | `{ time, duration, episode, paused, source }` |
+| `state()` | `{ time, duration, episode, paused, quality, subtitles, source }` |
 | `on(event, cb)` | Подписка. Возвращает функцию отписки |
 | `destroy()` | Остановить видео, снять обработчики, освободить WebGL |
 
@@ -109,10 +158,13 @@ player.setEpisodes([
 | `seeked` | `state()` | Перемотка завершена. Удобно для совместного просмотра |
 | `ended` | `state()` | Серия закончилась |
 | `episodechange` | `{ episode }` | Включена другая серия |
-| `qualitychange` | `{ index, label }` | Сменилось качество |
+| `qualitychange` | `{ index, label, auto }` | Сменилось качество. `auto: true` — плеер сам спустился из-за слабой сети |
+| `subtitlechange` | `{ index, label, lang }` | Включены другие субтитры или выключены (`index: -1`) |
+| `subtitleerror` | `{ label, message }` | Файл субтитров не скачался или не разобрался |
+| `skip` | `{ kind, to, auto }` | Пропущен опенинг (`kind: 'opening'`) или эндинг. `auto: true` — сработал `autoSkip` |
 | `enhancechange` | `{ mode }` | Человек переключил «720+» |
 | `enhancefail` | `{ reason }` | «720+» выключилось само: нет WebGL2, кадр без CORS, потерян контекст |
-| `error` | `{ code, message }` | Видео не запустилось. `code` — код `MediaError` (1–4), `'hls'` или `'hls-load'` |
+| `error` | `{ code, message }` | Видео не запустилось и повторы кончились. `code` — код `MediaError` (1–4), `'hls'` или `'hls-load'`. На экране ошибки уже есть кнопка «Повторить» |
 
 Пример: показать свою кнопку при ошибке.
 
@@ -162,6 +214,11 @@ detach(); // отключить
 | `--yp-radius` | `20px` | Скругление плеера |
 | `--yp-radius-menu` | `16px` | Скругление меню |
 | `--yp-pad` | `clamp(12px, 2vw, 22px)` | Отступы панелей |
+| `--yp-mark` | `var(--yp-fox)` | Отрезки опенинга и эндинга на дорожке |
+| `--yp-cue-size` | `clamp(15px, 1.6vw + 8px, 38px)` | Размер субтитров |
+| `--yp-cue-font` | `var(--yp-font)` | Шрифт субтитров |
+| `--yp-cue-color` | `#fff` | Цвет субтитров |
+| `--yp-cue-bg` | `rgba(0,0,0,.55)` | Подложка субтитров |
 
 Чтобы плеер занимал всю высоту своего блока, а не держал 16:9:
 
@@ -182,3 +239,4 @@ detach(); // отключить
 | `data-scrubbing` | `yes`, пока тянут ползунок |
 | `data-enhanced` | `yes`, когда «720+» реально рисует |
 | `data-tv` | `on` в режиме телевизора |
+| `data-cues` | `on`, когда субтитры включены |

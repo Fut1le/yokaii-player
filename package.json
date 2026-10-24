@@ -1,7 +1,7 @@
 {
   "name": "yokaii-player",
-  "version": "1.0.0",
-  "description": "Открытый HTML5-плеер для аниме-сайтов: HLS и MP4, улучшение картинки 720+ на WebGL, жесты, пульт Smart TV. Vanilla JS, без зависимостей.",
+  "version": "1.1.0",
+  "description": "Открытый HTML5-видеоплеер для аниме-сайтов: HLS и MP4, субтитры WebVTT и SRT, пропуск опенинга, улучшение картинки 720+ на WebGL, жесты, пульт Smart TV. Vanilla JS, без зависимостей.",
   "type": "module",
   "main": "src/index.js",
   "module": "src/index.js",
@@ -9,14 +9,15 @@
     ".": "./src/index.js",
     "./style.css": "./src/yokaii-player.css"
   },
-  "files": ["src", "LICENSE", "README.md", "README.en.md"],
+  "files": ["src", "docs", "LICENSE", "README.md", "README.en.md", "CHANGELOG.md"],
   "sideEffects": ["*.css"],
   "scripts": {
     "start": "npx serve ."
   },
   "keywords": [
     "anime", "anime-player", "video-player", "html5-video", "hls", "hls-player", "m3u8",
-    "player", "webgl", "anime4k", "smart-tv", "tizen", "webos", "vanilla-js", "es-modules"
+    "player", "webgl", "anime4k", "smart-tv", "tizen", "webos", "vanilla-js", "es-modules",
+    "subtitles", "webvtt", "srt", "skip-intro", "media-player", "streaming"
   ],
   "homepage": "https://fut1le.github.io/yokaii-player/demo/",
   "repository": { "type": "git", "url": "git+https://github.com/Fut1le/yokaii-player.git" },

@@ -137,3 +137,9 @@ kbd {
   .keys { grid-template-columns: 1fr; gap: 2px; }
   .keys dd { margin-bottom: 8px; }
 }
+
+/* Блок «Что умеет плеер» */
+.features { margin-top: 24px; }
+.feature-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.feature-list li { color: var(--mist); font-size: .9375rem; line-height: 1.55; }
+.feature-list b { color: var(--paper); font-weight: 600; }

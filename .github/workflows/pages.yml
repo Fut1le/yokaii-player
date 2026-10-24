@@ -1,0 +1,66 @@
+# Публикует демо на GitHub Pages: https://fut1le.github.io/yokaii-player/demo/
+# Сборки нет — копируем файлы как есть и дописываем корневую страницу,
+# robots.txt и sitemap.xml, чтобы демо нашли поисковики.
+name: Демо на GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}demo/
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Собрать сайт
+        run: |
+          BASE="https://fut1le.github.io/yokaii-player"
+          mkdir -p _site
+          cp -r src demo assets docs LICENSE _site/
+
+          # Корень ведёт на демо, а поисковику сразу говорит, где каноническая страница
+          cat > _site/index.html <<HTML
+          <!doctype html>
+          <html lang="ru"><head>
+          <meta charset="utf-8">
+          <title>Yokaii Player — открытый HTML5-плеер для аниме-сайтов</title>
+          <meta name="description" content="Бесплатный HTML5-видеоплеер для аниме-сайта: HLS и MP4, субтитры, пропуск опенинга, пульт Smart TV. MIT.">
+          <link rel="canonical" href="$BASE/demo/">
+          <meta http-equiv="refresh" content="0; url=demo/">
+          </head><body><a href="demo/">Открыть демо Yokaii Player</a></body></html>
+          HTML
+
+          cat > _site/robots.txt <<TXT
+          User-agent: *
+          Allow: /
+          Sitemap: $BASE/sitemap.xml
+          TXT
+
+          cat > _site/sitemap.xml <<XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+            <url><loc>$BASE/demo/</loc><lastmod>$(date -u +%Y-%m-%d)</lastmod></url>
+          </urlset>
+          XML
+
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

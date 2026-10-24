@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Уязвимость / Security vulnerability
+    url: https://github.com/Fut1le/yokaii-player/security/advisories/new
+    about: Не пишите об уязвимостях в открытых issues — сообщите приватно
+  - name: Живое демо / Live demo
+    url: https://fut1le.github.io/yokaii-player/demo/
+    about: Проверьте, повторяется ли ошибка в демо

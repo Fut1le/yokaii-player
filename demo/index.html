@@ -3,13 +3,41 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Yokaii Player — демо HTML5-плеера для аниме</title>
-  <meta name="description" content="Живое демо Yokaii Player: открытый HTML5-плеер для аниме-сайтов. HLS и MP4, улучшение картинки 720+ на WebGL, жесты, горячие клавиши, пульт Smart TV. MIT.">
+  <title>Yokaii Player — открытый HTML5-плеер для аниме-сайтов (демо)</title>
+  <meta name="description" content="Живое демо Yokaii Player: бесплатный HTML5-видеоплеер для аниме-сайта. HLS (m3u8) и MP4, субтитры WebVTT и SRT, пропуск опенинга, улучшение картинки 720+ на WebGL, жесты и пульт Smart TV. Без зависимостей, MIT.">
   <meta name="theme-color" content="#09070F">
+  <link rel="canonical" href="https://fut1le.github.io/yokaii-player/demo/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta property="og:title" content="Yokaii Player — открытый плеер для аниме">
-  <meta property="og:description" content="HLS/MP4, «720+» на WebGL, жесты, пульт Smart TV. Vanilla JS, MIT.">
-  <meta property="og:image" content="../assets/preview.png">
+
+  <!-- Превью ссылки в Telegram, VK, Discord: адреса только абсолютные -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Yokaii Player">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:url" content="https://fut1le.github.io/yokaii-player/demo/">
+  <meta property="og:title" content="Yokaii Player — открытый плеер для аниме-сайтов">
+  <meta property="og:description" content="HLS и MP4, субтитры, пропуск опенинга, «720+» на WebGL, пульт Smart TV. Vanilla JS, MIT.">
+  <meta property="og:image" content="https://fut1le.github.io/yokaii-player/assets/social-preview.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "Yokaii Player",
+    "description": "Открытый HTML5-видеоплеер для аниме-сайтов: HLS и MP4, субтитры WebVTT и SRT, пропуск опенинга и эндинга, улучшение картинки на WebGL, жесты и пульт Smart TV.",
+    "codeRepository": "https://github.com/Fut1le/yokaii-player",
+    "programmingLanguage": "JavaScript",
+    "runtimePlatform": "Web browser",
+    "license": "https://opensource.org/licenses/MIT",
+    "version": "1.1.0",
+    "url": "https://fut1le.github.io/yokaii-player/demo/",
+    "image": "https://fut1le.github.io/yokaii-player/assets/social-preview.png",
+    "keywords": "anime player, аниме плеер, html5 video player, hls player, m3u8, subtitles, srt, webvtt, skip intro, smart tv, vanilla js",
+    "author": { "@type": "Person", "name": "Vladimir", "url": "https://yokaii.web.app" }
+  }
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +48,7 @@
 </head>
 <body>
   <header class="head">
-    <a class="brand" href="https://github.com/" id="repo-link" aria-label="Репозиторий на GitHub">
+    <a class="brand" href="https://github.com/Fut1le/yokaii-player" id="repo-link" aria-label="Репозиторий на GitHub">
       <img src="favicon.svg" width="44" height="44" alt="">
       <span>Yokaii Player</span>
     </a>
@@ -57,6 +85,19 @@
       </form>
     </section>
 
+    <section class="card features" aria-labelledby="features-title">
+      <h2 id="features-title">Что умеет плеер</h2>
+      <ul class="feature-list">
+        <li><b>HLS и MP4.</b> Потоки .m3u8 играют нативно в Safari и через hls.js в Chrome и Firefox. MP4 и WebM — напрямую.</li>
+        <li><b>Субтитры WebVTT и SRT.</b> Файл с любого домена, фансаб-теги вычищаются, выбор запоминается. Клавиша <kbd>C</kbd>.</li>
+        <li><b>Пропуск опенинга и эндинга.</b> По точным меткам серии — ровно до конца песни, без меток — +1:30. Метки видны на дорожке.</li>
+        <li><b>Слабая сеть.</b> Видео встало — плеер сам включает качество пониже. Пропал интернет — ждёт и продолжает с той же секунды.</li>
+        <li><b>«720+».</b> Шейдер на WebGL2 подтягивает размытые границы рисовки на 480p и 720p. Не нейросеть, но заметно чище.</li>
+        <li><b>Телефон и Smart TV.</b> Двойной тап для перемотки, пульты Tizen, webOS и Android TV, кнопки на экране блокировки.</li>
+      </ul>
+      <p class="note">Подключение и API — в <a href="https://github.com/Fut1le/yokaii-player#readme">README на GitHub</a>.</p>
+    </section>
+
     <section class="grid">
       <div class="card">
         <h2>Клавиши</h2>
@@ -64,7 +105,8 @@
           <dt><kbd>Пробел</kbd> <kbd>K</kbd></dt><dd>пауза</dd>
           <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>±5 секунд, с <kbd>Shift</kbd> ±30</dd>
           <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>громкость</dd>
-          <dt><kbd>S</kbd></dt><dd>пропустить опенинг, +1:30</dd>
+          <dt><kbd>S</kbd></dt><dd>пропустить опенинг или эндинг</dd>
+          <dt><kbd>C</kbd></dt><dd>субтитры вкл / выкл</dd>
           <dt><kbd>N</kbd> <kbd>B</kbd></dt><dd>следующая и предыдущая серия</dd>
           <dt><kbd>F</kbd> <kbd>M</kbd> <kbd>P</kbd></dt><dd>весь экран, звук, картинка в картинке</dd>
           <dt><kbd>0</kbd>–<kbd>9</kbd></dt><dd>прыжок на 0–90% серии</dd>
@@ -83,7 +125,8 @@
   </main>
 
   <footer class="foot">
-    Лицензия MIT. Сделано для <a href="https://yokaii.web.app">yokaii.web.app</a>.
+    Лицензия MIT. <a href="https://github.com/Fut1le/yokaii-player">Исходный код на GitHub</a>.
+    Сделано для <a href="https://yokaii.web.app">yokaii.web.app</a>.
     Демо-ролик нарисован для этого репозитория; фильмы Blender Foundation — CC BY.
   </footer>
 

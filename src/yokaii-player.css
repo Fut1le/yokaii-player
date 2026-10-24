@@ -93,8 +93,52 @@
 .yplayer .yp-bigplay,
 .yplayer .yp-loading,
 .yplayer .yp-gesture { z-index: 3; }
-.yplayer .yp-veil { z-index: 2; }
+.yplayer .yp-veil,
+.yplayer .yp-tap,
+.yplayer .yp-cues { z-index: 2; }
 .yplayer .yp-error { z-index: 6; }
+
+/* ---------- слой касаний ----------
+   Касания и клики по кадру принимает этот div, а не сам <video>:
+   Safari на iPhone после родного полноэкранного режима или смены
+   потока теряет у видео pointerup, и тап пропадал. Лежит над кадром
+   и затемнением, но под кнопками. */
+.yp-tap {
+  position: absolute; inset: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* ---------- субтитры ----------
+   Свой слой вместо родной отрисовки: родные субтитры не видны поверх
+   холста «720+» и прячутся под панелью. Пока панель видна, реплики
+   поднимаются над ней. */
+.yp-cues {
+  position: absolute; left: 6%; right: 6%; bottom: 7%;
+  display: flex; flex-direction: column; align-items: center; gap: .2em;
+  pointer-events: none;
+  text-align: center;
+  font-family: var(--yp-cue-font, var(--yp-font));
+  font-size: var(--yp-cue-size, clamp(15px, 1.6vw + 8px, 38px));
+  line-height: 1.3;
+  transition: bottom var(--yp-dur) var(--yp-ease);
+}
+.yplayer[data-cues="off"] .yp-cues { display: none; }
+.yplayer:not([data-idle="yes"]) .yp-cues { bottom: max(7%, 92px); }
+.yp-cue {
+  max-width: 100%;
+  padding: .08em .45em;
+  border-radius: .25em;
+  background: var(--yp-cue-bg, rgba(0, 0, 0, .55));
+  color: var(--yp-cue-color, #fff);
+  white-space: pre-line;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .8);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.yp-cue rt { font-size: .5em; }
 
 /* ---------- затемнение под панелями ---------- */
 .yp-veil {
@@ -182,7 +226,10 @@
   font-size: .8125rem;
   transition: opacity .3s var(--yp-ease);
 }
-.yp-loading[data-state="off"] { opacity: 0; pointer-events: none; }
+.yp-loading[data-state="off"] { opacity: 0; }
+/* Заставка загрузки только показывает: касание проходит к слою .yp-tap,
+   и панель можно вызвать, пока видео грузится */
+.yp-loading { pointer-events: none; }
 
 .yp-flame { display: flex; gap: 6px; align-items: flex-end; height: 34px; }
 .yp-flame i {
@@ -272,6 +319,18 @@
   transition: height .15s var(--yp-ease);
 }
 .yp-buffer { background: rgba(255,255,255,.3); width: 0; }
+
+/* метки опенинга и эндинга на дорожке */
+.yp-marks { position: absolute; left: 0; right: 0; height: 4px; pointer-events: none; transition: height .15s var(--yp-ease); }
+.yp-mark {
+  position: absolute; top: 0; bottom: 0;
+  border-radius: 99px;
+  background: var(--yp-mark, var(--yp-fox));
+  opacity: .55;
+}
+.yp-track:hover .yp-marks,
+.yp-track:focus-visible .yp-marks,
+.yplayer[data-scrubbing="yes"] .yp-marks { height: 6px; }
 .yp-played {
   width: 0;
   background: linear-gradient(90deg, var(--yp-accent), var(--yp-accent-2));
@@ -494,6 +553,7 @@
   .yplayer:not([data-idle="yes"]) .yp-top { pointer-events: auto; }
   .yp-menu { min-width: 200px; }
   .yp-menu button { padding: 12px 14px; }
+  .yplayer:not([data-idle="yes"]) .yp-cues { bottom: max(7%, 104px); }
 }
 
 /* Телевизор (attachRemote(player, { tv: true })):
@@ -504,6 +564,7 @@
 .yplayer[data-tv="on"] .yp-btn:focus { outline: 3px solid var(--yp-fox); background: rgba(255,255,255,.14); }
 .yplayer[data-tv="on"] .yp-track { height: 28px; }
 .yplayer[data-tv="on"] .yp-time { font-size: .9rem; }
+.yplayer[data-tv="on"]:not([data-idle="yes"]) .yp-cues { bottom: max(7%, 120px); }
 
 @media (prefers-reduced-motion: reduce) {
   .yplayer *, .yplayer *::before, .yplayer *::after {

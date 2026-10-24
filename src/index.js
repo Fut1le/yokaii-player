@@ -2,3 +2,4 @@
 export { YokaiiPlayer, YokaiiPlayer as default } from './yokaii-player.js';
 export { Enhancer } from './enhance.js';
 export { attachRemote } from './remote.js';
+export { parseSubtitles, toVtt } from './subtitles.js';
