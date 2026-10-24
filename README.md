@@ -58,12 +58,12 @@
 Сборка не нужна. Скопируйте папку `src/` к себе или подключите с jsDelivr:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Fut1le/yokaii-player@1.1.0/src/yokaii-player.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Fut1le/yokaii-player@v1.1.0/src/yokaii-player.css">
 
 <div id="player"></div>
 
 <script type="module">
-  import { YokaiiPlayer } from 'https://cdn.jsdelivr.net/gh/Fut1le/yokaii-player@1.1.0/src/index.js';
+  import { YokaiiPlayer } from 'https://cdn.jsdelivr.net/gh/Fut1le/yokaii-player@v1.1.0/src/index.js';
 
   const player = new YokaiiPlayer(document.getElementById('player'), {
     title: 'Название тайтла',
